@@ -3,3 +3,5 @@ nbproject
 temp
 log
 libs
+
+/vendor/
