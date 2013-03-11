@@ -1,0 +1,16 @@
+{
+    "name": "o5/grido-sandbox",
+    "description": "Sandbox, Project Pages and API for Grido (Nette Framework grid component)",
+    "require": {
+        "nette/nette": "@dev",
+        "dg/dibi": "@dev",
+        "o5/grido": "@dev"
+    },
+    "license": ["BSD-3", "GPL-2.0", "GPL-3.0"],
+    "authors": [
+        {
+            "name": "Petr Bugyik",
+            "email": "petr@bugyik.cz"
+        }
+    ]
+}
