@@ -3,6 +3,7 @@
 use Grido\Grid,
     Grido\Components\Filters\Filter,
     Grido\Components\Columns\Column,
+    Grido\DataSources\Doctrine,
     Nette\Utils\Html;
 
 /**
@@ -13,18 +14,35 @@ use Grido\Grid,
  */
 final class ExamplePresenter extends BasePresenter
 {
+
+    const MODEL_DIBI = 'dibi';
+
+    const MODEL_NDATABASE = 'ndatabase';
+
+    const MODEL_DOCTRINE = 'doctrine';
+
     /** @var string @persistent - only for demo */
     public $filterRenderType = Filter::RENDER_INNER;
+
+    /** @var string @persistent */
+    public $model = self::MODEL_DIBI;
 
     protected function createComponentGrid($name)
     {
         $grid = new Grid($this, $name);
 
-        $fluent = dibi::select('u.*, c.title AS country')
-            ->from('[user] u')
-            ->join('[country] c')->on('u.country_code = c.code');
-        $grid->setModel($fluent);
-        //$grid->setModel($this->context->sqlite->table('user'));
+        if ($this->model === self::MODEL_DIBI) {
+            $fluent = dibi::select('u.*, c.title AS country')
+                ->from('[user] u')
+                ->join('[country] c')->on('u.country_code = c.code');
+
+            $grid->setModel($fluent);
+        } else if ($this->model === self::MODEL_NDATABASE) {
+            $grid->setModel($this->context->sqlite->table('user'));
+        } else {
+            $repository = $this->context->doctrine->entityManager->getRepository('Entities\User');
+            $grid->setModel(new Doctrine($repository->createQueryBuilder('a')));
+        }
 
         $grid->addColumn('firstname', 'Firstname')
             ->setFilter()

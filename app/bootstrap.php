@@ -26,8 +26,12 @@ $configurator->createRobotLoader()
 
 // Create Dependency Injection container from config.neon file
 $configurator->addConfig(__DIR__ . '/config.neon');
-$container = $configurator->createContainer();
 
+// Register extensions
+Nella\Doctrine\Config\Extension::register($configurator);
+
+// Create container
+$container = $configurator->createContainer();
 
 // Database connect
 dibi::connect($container->parameters['database']['sqlite']);

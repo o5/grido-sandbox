@@ -45,6 +45,9 @@ common:
         mysql: @nette.database.mysql
         postgre: @nette.database.postgre
 
+    doctrine:
+        connection: [driver: pdo_sqlite, path: %database.sqlite.file%]
+
 
 production < common:
     parameters:
