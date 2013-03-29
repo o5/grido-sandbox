@@ -146,7 +146,7 @@ final class ExamplePresenter extends BasePresenter
 
     public function actionDelete()
     {
-        $id = $this->getParam('id');
+        $id = $this->getParameter('id');
         $id = is_array($id) ? implode(', ', $id) : $id;
         $this->flashMessage("Action '$this->action' for row with id: $id done.", 'success');
         $this->redirect('default');
@@ -154,7 +154,7 @@ final class ExamplePresenter extends BasePresenter
 
     public function actionPrint()
     {
-        $id = $this->getParam('id');
+        $id = $this->getParameter('id');
         $id = is_array($id) ? implode(', ', $id) : $id;
         $this->flashMessage("Action '$this->action' for row with id: $id done.", 'success');
         $this->redirect('default');
