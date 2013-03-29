@@ -32,7 +32,7 @@ final class ExamplePresenter extends BasePresenter
         $grid = new Grid($this, $name);
 
         if ($this->model === self::MODEL_DIBI) {
-            $fluent = dibi::select('u.*, c.title AS country')
+            $fluent = $this->context->dibi->select('u.*, c.title AS country')
                 ->from('[user] u')
                 ->join('[country] c')->on('u.country_code = c.code');
 

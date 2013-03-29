@@ -44,6 +44,7 @@ common:
         sqlite: @nette.database.sqlite
         mysql: @nette.database.mysql
         postgre: @nette.database.postgre
+        dibi: DibiConnection(%database.sqlite%)
 
     doctrine:
         connection: [driver: pdo_sqlite, path: %database.sqlite.file%]
