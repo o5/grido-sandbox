@@ -4,7 +4,9 @@ use Grido\Grid,
     Grido\Components\Filters\Filter,
     Grido\Components\Columns\Column,
     Grido\DataSources\Doctrine,
-    Nette\Utils\Html;
+    Nette\Utils\Html,
+    Nette\Database\Connection,
+    Doctrine\ORM\EntityManager;
 
 /**
  * Example presenter.
@@ -27,20 +29,36 @@ final class ExamplePresenter extends BasePresenter
     /** @var string @persistent */
     public $model = self::MODEL_DIBI;
 
+    /** @var DibiConnection */
+    private $dibi;
+
+    /** @var EntityManager */
+    private $entityManager;
+
+    /** @var Connection */
+    private $connection;
+
+    public function injectConnections(DibiConnection $dibi, EntityManager $entityManager, Connection $connection)
+    {
+        $this->dibi = $dibi;
+        $this->entityManager = $entityManager;
+        $this->connection = $connection;
+    }
+
     protected function createComponentGrid($name)
     {
         $grid = new Grid($this, $name);
 
         if ($this->model === self::MODEL_DIBI) {
-            $fluent = $this->context->dibi->select('u.*, c.title AS country')
+            $fluent = $this->dibi->select('u.*, c.title AS country')
                 ->from('[user] u')
                 ->join('[country] c')->on('u.country_code = c.code');
 
             $grid->setModel($fluent);
         } else if ($this->model === self::MODEL_NDATABASE) {
-            $grid->setModel($this->context->sqlite->table('user'));
+            $grid->setModel($this->connection->table('user'));
         } else {
-            $repository = $this->context->doctrine->entityManager->getRepository('Entities\User');
+            $repository = $this->entityManager->getRepository('Entities\User');
             $grid->setModel(new Doctrine($repository->createQueryBuilder('a')));
         }
 
