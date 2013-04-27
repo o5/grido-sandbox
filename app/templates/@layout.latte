@@ -42,6 +42,17 @@
                                 <li><a class="no-ajax" n:href="ajaxOff">OFF</a></li>
                             </ul>
                         </li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle no-ajax" data-toggle="dropdown">
+                                Driver <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="no-ajax" n:href="this model=>$presenter::MODEL_DIBI">Dibi</a></li>
+                                <li><a class="no-ajax" n:href="this model=>$presenter::MODEL_NDATABASE">Nette\Database</a></li>
+                                <li><a class="no-ajax" n:href="this model=>$presenter::MODEL_DOCTRINE">Doctrine</a></li>
+                                <li><a class="no-ajax" n:href="this model=>$presenter::MODEL_ARRAY">Array</a></li>
+                            </ul>
+                        </li>
                     </ul>
                     <ul class="nav pull-right">
                         <li><span id="ajax-spinner" class="hide">&nbsp;</span></li>

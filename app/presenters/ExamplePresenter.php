@@ -3,7 +3,12 @@
 use Grido\Grid,
     Grido\Components\Filters\Filter,
     Grido\Components\Columns\Column,
-    Nette\Utils\Html;
+    Grido\DataSources\Doctrine,
+    Grido\DataSources\ArraySource,
+    Nette\Utils\Html,
+    Nette\Utils\Json,
+    Nette\Database\Connection,
+    Doctrine\ORM\EntityManager;
 
 /**
  * Example presenter.
@@ -13,18 +18,56 @@ use Grido\Grid,
  */
 final class ExamplePresenter extends BasePresenter
 {
+
+    const MODEL_DIBI = 'dibi';
+
+    const MODEL_NDATABASE = 'ndatabase';
+
+    const MODEL_DOCTRINE = 'doctrine';
+
+    const MODEL_ARRAY = 'array';
+
     /** @var string @persistent - only for demo */
     public $filterRenderType = Filter::RENDER_INNER;
+
+    /** @var string @persistent */
+    public $model = self::MODEL_DIBI;
+
+    /** @var DibiConnection */
+    private $dibi;
+
+    /** @var EntityManager */
+    private $entityManager;
+
+    /** @var Connection */
+    private $connection;
+
+    public function injectConnections(DibiConnection $dibi, EntityManager $entityManager, Connection $connection)
+    {
+        $this->dibi = $dibi;
+        $this->entityManager = $entityManager;
+        $this->connection = $connection;
+    }
 
     protected function createComponentGrid($name)
     {
         $grid = new Grid($this, $name);
 
-        $fluent = dibi::select('u.*, c.title AS country')
-            ->from('[user] u')
-            ->join('[country] c')->on('u.country_code = c.code');
-        $grid->setModel($fluent);
-        //$grid->setModel($this->context->sqlite->table('user'));
+        if ($this->model === self::MODEL_DIBI) {
+            $fluent = $this->dibi->select('u.*, c.title AS country')
+                ->from('[user] u')
+                ->join('[country] c')->on('u.country_code = c.code');
+
+            $grid->setModel($fluent);
+        } else if ($this->model === self::MODEL_NDATABASE) {
+            $grid->setModel($this->connection->table('user'));
+        } else if ($this->model === self::MODEL_DOCTRINE) {
+            $repository = $this->entityManager->getRepository('Entities\User');
+            $grid->setModel(new Doctrine($repository->createQueryBuilder('a')));
+        } else {
+            $file = $this->context->parameters['appDir'] . '/models/users.txt';
+            $grid->setModel(new ArraySource(unserialize(file_get_contents($file))));
+        }
 
         $grid->addColumn('firstname', 'Firstname')
             ->setFilter()
@@ -49,9 +92,11 @@ final class ExamplePresenter extends BasePresenter
         $baseUri = $this->template->baseUri;
         $grid->addColumn('country', 'Country')
             ->setSortable()
-            ->setCustomRender(function($item) use($baseUri) {
-                $img = Html::el('img')->src("$baseUri/img/flags/$item->country_code.gif");
-                return "$img $item->country";
+            ->setCustomRender(function($item) use($baseUri, $grid) {
+                $cc = $grid->getPropertyAccessor()->getProperty($item, 'country_code');
+                $c = $grid->getPropertyAccessor()->getProperty($item, 'country');
+                $img = Html::el('img')->src("$baseUri/img/flags/$cc.gif");
+                return "$img $c";
             })
             ->setFilter()
                 ->setSuggestion();
@@ -148,7 +193,7 @@ final class ExamplePresenter extends BasePresenter
 
     public function actionDelete()
     {
-        $id = $this->getParam('id');
+        $id = $this->getParameter('id');
         $id = is_array($id) ? implode(', ', $id) : $id;
         $this->flashMessage("Action '$this->action' for row with id: $id done.", 'success');
         $this->redirect('default');
@@ -156,7 +201,7 @@ final class ExamplePresenter extends BasePresenter
 
     public function actionPrint()
     {
-        $id = $this->getParam('id');
+        $id = $this->getParameter('id');
         $id = is_array($id) ? implode(', ', $id) : $id;
         $this->flashMessage("Action '$this->action' for row with id: $id done.", 'success');
         $this->redirect('default');
