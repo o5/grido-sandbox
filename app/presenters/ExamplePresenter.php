@@ -4,7 +4,9 @@ use Grido\Grid,
     Grido\Components\Filters\Filter,
     Grido\Components\Columns\Column,
     Grido\DataSources\Doctrine,
+    Grido\DataSources\ArraySource,
     Nette\Utils\Html,
+    Nette\Utils\Json,
     Nette\Database\Connection,
     Doctrine\ORM\EntityManager;
 
@@ -22,6 +24,8 @@ final class ExamplePresenter extends BasePresenter
     const MODEL_NDATABASE = 'ndatabase';
 
     const MODEL_DOCTRINE = 'doctrine';
+
+    const MODEL_ARRAY = 'array';
 
     /** @var string @persistent - only for demo */
     public $filterRenderType = Filter::RENDER_INNER;
@@ -57,9 +61,12 @@ final class ExamplePresenter extends BasePresenter
             $grid->setModel($fluent);
         } else if ($this->model === self::MODEL_NDATABASE) {
             $grid->setModel($this->connection->table('user'));
-        } else {
+        } else if ($this->model === self::MODEL_DOCTRINE) {
             $repository = $this->entityManager->getRepository('Entities\User');
             $grid->setModel(new Doctrine($repository->createQueryBuilder('a')));
+        } else {
+            $file = $this->context->parameters['appDir'] . '/models/users.txt';
+            $grid->setModel(new ArraySource(unserialize(file_get_contents($file))));
         }
 
         $grid->addColumn('firstname', 'Firstname')
@@ -85,9 +92,11 @@ final class ExamplePresenter extends BasePresenter
         $baseUri = $this->template->baseUri;
         $grid->addColumn('country', 'Country')
             ->setSortable()
-            ->setCustomRender(function($item) use($baseUri) {
-                $img = Html::el('img')->src("$baseUri/img/flags/$item->country_code.gif");
-                return "$img $item->country";
+            ->setCustomRender(function($item) use($baseUri, $grid) {
+                $cc = $grid->getPropertyAccessor()->getProperty($item, 'country_code');
+                $c = $grid->getPropertyAccessor()->getProperty($item, 'country');
+                $img = Html::el('img')->src("$baseUri/img/flags/$cc.gif");
+                return "$img $c";
             })
             ->setFilter()
                 ->setSuggestion();
