@@ -79,6 +79,11 @@ final class DoctrinePresenter extends BasePresenter
         $grid->addActionHref('edit', 'Edit')
             ->setIcon('pencil');
 
+        $grid->addFilterCheck('preferred', 'Only preferred girls :)')
+            ->setCondition(Filter::CONDITION_CUSTOM, array(
+                TRUE => '[gender] = \'female\' AND [centimeters] >= 170' //for checked
+        ));
+
         $grid->addActionHref('delete', 'Delete')
             ->setIcon('trash')
             ->setConfirm(function($item) {
