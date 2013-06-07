@@ -17,7 +17,12 @@ final class DoctrinePresenter extends BasePresenter
         $grid = new Grido\Grid($this, $name);
 
         $repository = $this->context->doctrine->entityManager->getRepository('Entities\User');
-        $grid->setModel($repository->createQueryBuilder('a'));
+        $model = new \Grido\DataSources\Doctrine(
+            $repository->createQueryBuilder('a') // We need to create query builder with inner join.
+                ->addSelect('c')                 // This will produce less SQL queries with prefetch.
+                ->innerJoin('a.country', 'c'),
+            array( 'country' => 'c.title' ));    // Map country column to the title of the Country entity
+        $grid->setModel($model);
 
         $grid->addColumnText('firstname', 'Firstname')
             ->setFilterText()
@@ -39,7 +44,7 @@ final class DoctrinePresenter extends BasePresenter
         $grid->getColumn('birthday')->cellPrototype->class[] = 'center';
 
         $baseUri = $this->template->baseUri;
-        $grid->addColumnText('country_code', 'Country')
+        $grid->addColumnText('country', 'Country')
             ->setSortable()
             ->setCustomRender(function($item) use($baseUri) {
                 $img = Html::el('img')->src("$baseUri/img/flags/$item->country_code.gif");
