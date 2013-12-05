@@ -95,7 +95,7 @@
     float: left;
 }
 
-.grido .filter.outer .items span {
+.grido .filter.outer .items > span {
     float: left;
     display: block;
     width: 12em;
@@ -115,6 +115,13 @@
 .grido .filter.outer .buttons {
     float: right;
     margin: 1.2em 1em 0;
+}
+
+.grido .filter .tt-hint{ 
+	height: 23px; 
+	margin: 0; 
+	padding: 0; 
+	text-indent: 2px; 
 }
 
 /******************** SORTING ********************/

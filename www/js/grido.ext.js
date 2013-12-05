@@ -40,11 +40,27 @@
     Grido.Grid.prototype.initSuggest = function()
     {
         if ($.fn.typeahead === undefined) {
-            console.error('Plugin "bootstrap-typeahead.js" is missing!');
+            console.error('Plugin "typeahead.js" is missing!');
             return;
         }
 
         var _this = this;
+		
+		this.$element.find('input.suggest').each(function() {
+			var link = $(this).data('grido-suggest-handler');
+				$(this).typeahead({
+					limit: 10,
+					highlight: true,
+					remote: {
+						url: link,
+						wildcard: '-query-'
+					}
+				});
+				$(this).on('typeahead:selected', function(){
+					_this.sendFilterForm();
+				});
+		});
+		
         this.$element
             .on('keyup', 'input.suggest', function(event) {
                 var key = event.keyCode || event.which;
@@ -55,30 +71,6 @@
                     _this.sendFilterForm();
                 }
             })
-            .on('focus', 'input.suggest', function() {
-                $(this).typeahead({
-                    source: function (query, process) {
-                        if (!/\S/.test(query)) {
-                            return false;
-                        }
-
-                        var link = this.$element.data('grido-suggest-handler'),
-                            replacement = this.$element.data('grido-suggest-replacement');
-
-                        return $.get(link.replace(replacement, query), function (items) {
-                            //TODO local cache??
-                            process(items);
-                        }, "json");
-                    },
-
-                    updater: function (item) {
-                        this.$element.val(item);
-                        _this.sendFilterForm();
-                    },
-
-                    autoSelect: false //improvement of original bootstrap-typeahead.js
-                });
-        });
     };
 
     Grido.Ajax.prototype.registerHashChangeEvent = function()
