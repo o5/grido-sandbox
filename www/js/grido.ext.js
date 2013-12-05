@@ -49,6 +49,8 @@
 		this.$element.find('input.suggest').each(function() {
 			var link = $(this).data('grido-suggest-handler');
 				$(this).typeahead({
+					limit: 10,
+					highlight: true,
 					remote: {
 						url: link,
 						wildcard: '-query-'
