@@ -217,6 +217,14 @@
 
             <td>function($row, Html $tr)<br>{return $tr}</td>
         </tr>
+
+        <tr>
+            <td>setEditableColumns</td>
+
+            <td>Nastaví všechny sloupce editovatelné pomocí inline editace<br/> Volitelný callback na funkci, která se postará o práci se změněnými daty.</td>
+
+            <td>function($id, $newValue, $oldValue, $column) {}<br>{return $success}</td>
+        </tr>
         </tbody>
     </table>
 
@@ -457,6 +465,47 @@ $grid->model->callback['limit'] = function($model, $args) {
 
             <td> </td>
         </tr>
+
+        <tr>
+            <td>setEditable</td>
+
+            <td>Nastaví sloupec jako editovatelný pomocí inline editace.<br />Volitelný callback<br />Volitelný <a href="http://api.nette.org/2.0.14/Nette.Forms.IControl.html">Nette\Forms\IControl</a></td>
+
+            <td>function($id, $newValue, $oldValue, $column) {}<br>{return $success}<br/>$control</td>
+        </tr>
+
+        <tr>
+            <td>setEditableControl</td>
+
+            <td>Nastaví pro sloupec vlastní <a href="http://api.nette.org/2.0.14/Nette.Forms.IControl.html">Nette\Forms\IControl</a></td>
+
+            <td>$control</td>
+        </tr>
+
+        <tr>
+            <td>setEditableCallback</td>
+
+            <td>Nastaví vlastní callback pro práci se změněnými daty</td>
+
+            <td>function($id, $newValue, $oldValue, $column) {}<br>{return $success}</td>
+        </tr>
+
+        <tr>
+            <td>setEditableValueCallback</td>
+
+            <td>Nastaví callback pro hodnotu sloupce</td>
+
+            <td>function($row) {}</td>
+        </tr>
+
+        <tr>
+            <td>disableEditable</td>
+
+            <td>Znemožní inline editaci na daném sloupci.</td>
+
+            <td> </td>
+        </tr>
+
         </tbody>
     </table>
 
@@ -482,6 +531,11 @@ $grid->model->callback['limit'] = function($model, $args) {
 
             <td>umožní nastavit např. vlastní css třídu hlavičky sloupce</td>
         </tr>
+        <tr>
+            <td>getEditableControl</td>
+
+            <td>Vrátí <a href="http://api.nette.org/2.0.14/Nette.Forms.IControl.html">Nette\Forms\IControl</a> používaný pro inline editaci</td>
+        </tr>        
         </tbody>
     </table>
 
@@ -815,6 +869,74 @@ $grid->addFilterCheck('male', 'Only male')
         </tr>
         </tbody>
     </table>
+    <hr>
+
+    <h3 id="inline-editace">Inline editace</h3>    
+    <p>
+        Inline editace Vám umožní editovat jednotlivé buňky přímo v tabulce Grida, v současné době je možné ji využít nad daty z <a href="http://api.nette.org/2.0/Nette.Database.Table.Selection.html">Nette\Database\Table\Selection</a> bez nutnosti další implementace. Pokud využíváte jako datový zdroj <a href="http://o5.github.io/grido-sandbox/api/master/class-Grido.DataSources.IDataSource.html">IDataSource</a> nebo
+                <a href="http://api.dibiphp.com/2.0/DibiFluent.html">DibiFluent</a>,                
+                <a href="http://docs.doctrine-project.org/projects/doctrine-mongodb-odm/en/latest/reference/query-builder-api.html">Doctrine\ORM\QueryBuilder</a>,
+                <a href="http://cz1.php.net/manual/en/language.types.array.php">Array</a> je třeba doimplementovat vlastní funkci, která zajistí práci se změněnými daty.
+    </p>
+    <h4 id="inline-editace-ovládání">Ovládání</h4>
+    <p>
+    Pro otevření buňky k inline editaci lze využít CTRL + DOUBLE CLICK na Windows a Linux<br />
+    Pro otevření buňky k inline editaci lze využít CMD + DOUBLE CLICK na Mac OS<br />
+    <hr>
+    Pro potvrzení editace stiskněte ENTER, buňka pro editaci musí mít focus.<br />
+    Pro zrušení editace stiskněte ESC, buňka pro editaci musí mít focus.<br />
+    </p>
+    <h4 id="inline-editace-code">Ukázka kódu a použití</h4>
+    <pre><code>
+    // Umožnění inline editace nad celým gridem
+    $grid->setEditableColumns();
+
+    // Umožnění inline editace nad celým gridem s vlastním callbackem pro práci se změněnými daty
+    $grid->setEditableColumns(callback(...));
+
+    // Umožnění inline editace pouze nad konkrétním sloupcem
+    $column->setEditable();
+
+    // Nastavení vlastního callbacku pro práci se změněnými daty nad jediným sloupcem
+    $column->setEditable(callback(...));
+    //nebo
+    $column->setEditable();
+    $column->setEditableCallback();
+
+    // Znemožnění editace nad jediným konkrétním sloupcem
+    $grid->setEditableColumns();
+    $column->disableEditable();
+
+    // Nastavení vlastního IControl pro konkrétní sloupec
+    $column->setEditable(callback(...), $control);
+    // nebo
+    $column->setEditableControl($control);
+    // případně
+    $column->setEditable(NULL, $control);
+
+    // Pokud potřebujete předzpracovat hodnotu sloupce pro IControl je možné nastavit vlastní ValueCallback
+    $column->setEditableValueCallback(function($row) {
+        return $row->id;
+    });
+
+    /** 
+     *  Callback funkce pro zpracování změněných dat s parametry
+     *  $id mixed primární klíč řádku
+     *  $newValue mixed změněná hodnota
+     *  $oldValue mixed původní hodnota
+     *  $column Grido\Components\Columns\Editable sloupec grida
+     */ 
+    function($id, $newValue, $oldValue, $column) {
+        if ($isDataSaved) {
+            $success = true;
+        } else {
+            $success = false;
+        }
+        return $success;
+    } 
+
+    </code></pre>
+
     <hr>
 
     <h3 id="export">Export</h3>
