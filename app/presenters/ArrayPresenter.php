@@ -130,7 +130,7 @@ final class ArrayPresenter extends Presenter
 
                 $item['last_login'] = $item['id'] == 4
                     ? NULL
-                    : new \Nette\DateTime("NOW - {$d}day {$h}hour {$m}minute {$s}second");
+                    : new \Nette\Utils\DateTime("NOW - {$d}day {$h}hour {$m}minute {$s}second");
 
                 $item['allowance'] = rand(10000, 100000) / 10;
                 $item['ok'] = (bool) rand(0, 1);
